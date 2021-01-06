@@ -5,7 +5,7 @@
 	let messages = [];
 	/** @type {FormData} */
 	let formData = new FormData();
-	formData.append('token', 'xoxb-1606628172838-1613641736723-HKRLDVglfa96DKAFmIgt36hK'); //we need to check wheter this might be a security issue. if yes, how can we provide the token otherwise
+	formData.append('token', 'xoxb-1606628172838-1613641736723-oiPl3G80jKN8OiyITvosU4op'); //we need to check wheter this might be a security issue. if yes, how can we provide the token otherwise
 
 	export let channelName = "test-channel"; //prop for the channelName defaults to test-channel
 
