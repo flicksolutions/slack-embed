@@ -1,10 +1,27 @@
 <script>
 	export let name;
+
+	async function findConversation(name) {
+		let formData = new FormData();
+		formData.append('token', 'xoxb-1606628172838-1613641736723-3IapXu8RpJSbvQApxS5k3G3X')
+		try {
+			const res = await fetch(`https://slack.com/api/conversations.list`, {
+				method: 'POST',
+				body: formData
+			});
+			const conversation = await res.json();
+			console.log(conversation)
+
+		}
+		catch (error) {
+			console.error(error);
+		}
+	}
 </script>
 
 <main>
 	<h1>Hello {name}!</h1>
-	<p>Visit the <a href="https://svelte.dev/tutorial">Svelte tutorial</a> to learn how to build Svelte apps.</p>
+	<button on:click={() => findConversation("test-channel")}>find conversation</button>
 </main>
 
 <style>
