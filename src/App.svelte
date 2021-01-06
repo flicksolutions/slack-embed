@@ -3,14 +3,24 @@
 
 	async function findConversation(name) {
 		let formData = new FormData();
-		formData.append('token', 'xoxb-1606628172838-1613641736723-3IapXu8RpJSbvQApxS5k3G3X')
+		formData.append('token', 'xoxb-1606628172838-1613641736723-3THHpQQ3RfObUf1egQMAKPNr');
 		try {
-			const res = await fetch(`https://slack.com/api/conversations.list`, {
+			const conv = await fetch(`https://slack.com/api/conversations.list`, {
 				method: 'POST',
 				body: formData
 			});
-			const conversation = await res.json();
+			const conversation = await conv.json();
 			console.log(conversation)
+			//find the id
+			const channelId = await conversation.channels.find(channel => channel.name === "test-channel").id;
+			console.log(channelId)
+			formData.append('channel', channelId);
+			const hist = await fetch(`https://slack.com/api/conversations.history`, {
+				method: 'POST',
+				body: formData
+			});
+			const history = await hist.json();
+			console.log(history)
 
 		}
 		catch (error) {
