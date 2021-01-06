@@ -2,78 +2,76 @@
 	import { onMount } from "svelte";
 
 	let messages = [];
+	let formData = new FormData();
+	formData.append('token', 'xoxb-1606628172838-1613641736723-HKRLDVglfa96DKAFmIgt36hK');
 
 	export let channelName = "test-channel";
 
-	async function findConversation(name) {
-		let formData = new FormData();
-		formData.append('token', 'xoxb-1606628172838-1613641736723-3THHpQQ3RfObUf1egQMAKPNr');
-		try {
-			const conv = await fetch(`https://slack.com/api/conversations.list`, {
-				method: 'POST',
-				body: formData
+	async function findConversation() {
+		const conv = await fetch(`https://slack.com/api/conversations.list`, {
+			method: 'POST',
+			body: formData
+		});
+		return await conv.json();
+	}
+
+	async function findHistory(conversation) {
+		//find the id
+		const channelId = await conversation.channels.find(channel => channel.name === channelName).id;
+		//console.log(channelId)
+		const channelFormData = formData;
+		channelFormData.append('channel', channelId);
+		channelFormData.append('limit', 50);
+		const hist = await fetch(`https://slack.com/api/conversations.history`, {
+			method: 'POST',
+			body: channelFormData
+		});
+		return await hist.json();
+	}
+
+	async function getMessages(history) {
+		async function replaceAsync(str, regex, asyncFn) {
+			const promises = [];
+			str.replace(regex, (match, ...args) => {
+				const promise = asyncFn(match, ...args);
+				promises.push(promise);
 			});
-			const conversation = await conv.json();
-			console.log(conversation)
-			//find the id
-			const channelId = await conversation.channels.find(channel => channel.name === name).id;
-			//console.log(channelId)
-			const channelFormData = formData;
-			channelFormData.append('channel', channelId);
-			channelFormData.append('limit', 50);
-			const hist = await fetch(`https://slack.com/api/conversations.history`, {
+			const data = await Promise.all(promises);
+			return str.replace(regex, () => data.shift());
+		}
+
+		async function asyncReplacer(match, p1) {
+			const userFormData = formData;
+			userFormData.append('user', p1);
+			const req = await fetch(`https://slack.com/api/users.info`, {
 				method: 'POST',
-				body: channelFormData
+				body: userFormData
 			});
-			const history = await hist.json();
-
-			async function replaceAsync(str, regex, asyncFn) {
-				const promises = [];
-				str.replace(regex, (match, ...args) => {
-					const promise = asyncFn(match, ...args);
-					promises.push(promise);
-				});
-				const data = await Promise.all(promises);
-				return str.replace(regex, () => data.shift());
-			}
-
-			async function asyncReplacer(match, p1) {
-				const userFormData = formData;
-				userFormData.append('user', p1);
-				const req = await fetch(`https://slack.com/api/users.info`, {
-					method: 'POST',
-					body: userFormData
-				});
-				const res = await req.json();
-				console.log(`returning: ${res.user.name}`)
-				return res.user.name;
-			}
-
-			//find usernames
-			messages = (await Promise.all(history.messages.map(async message => {
-				const userFormData = formData;
-				userFormData.append('user', message.user);
-				const req = await fetch(`https://slack.com/api/users.info`, {
-					method: 'POST',
-					body: userFormData
-				});
-				const res = await req.json();
-				message.username = res.user.name;
-				//message.text = await message.text.replace(/<@(.*?)>/g, asyncReplacer);
-				message.text = await replaceAsync(message.text, /<@(.*?)>/g, asyncReplacer);
-				return message;
-			}))).reverse();
-
-			console.log(await messages)
-
+			const res = await req.json();
+			return res.user.name;
 		}
-		catch (error) {
-			console.error(error);
-		}
+		const enriched = await Promise.all(history.messages.map(async message => {
+			const userFormData = formData;
+			userFormData.append('user', message.user);
+			const req = await fetch(`https://slack.com/api/users.info`, {
+				method: 'POST',
+				body: userFormData
+			});
+			const res = await req.json();
+			message.username = res.user.name;
+			message.text = await replaceAsync(message.text, /<@(.*?)>/g, asyncReplacer);
+			return message;
+		}))
+		return enriched.reverse();
 	}
 
 	onMount(async () => {
-		await findConversation(channelName);
+		const conversation = await findConversation();
+		console.log(conversation)
+		const history = await findHistory(conversation);
+		console.log(history)
+		messages = await getMessages(history);
+		console.log(messages)
 	});
 </script>
 
