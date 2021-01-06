@@ -1,13 +1,19 @@
 <script>
 	import { onMount } from "svelte";
 
+	/** @type {*[]}	 */
 	let messages = [];
+	/** @type {FormData} */
 	let formData = new FormData();
-	formData.append('token', 'xoxb-1606628172838-1613641736723-HKRLDVglfa96DKAFmIgt36hK');
+	formData.append('token', 'xoxb-1606628172838-1613641736723-HKRLDVglfa96DKAFmIgt36hK'); //we need to check wheter this might be a security issue. if yes, how can we provide the token otherwise
 
-	export let channelName = "test-channel";
+	export let channelName = "test-channel"; //prop for the channelName defaults to test-channel
 
-	async function findConversation() {
+	/**
+	 * List all Channels in a JSON-Object
+	 * @returns {JSON}
+	 */
+	async function getConversation() {
 		const conv = await fetch(`https://slack.com/api/conversations.list`, {
 			method: 'POST',
 			body: formData
@@ -15,10 +21,15 @@
 		return await conv.json();
 	}
 
+	/**
+	 * Finds the latest 50 messages in a given channel and returns the complete history
+	 * @param conversation {json}
+	 * @returns {Promise<any>}
+	 */
 	async function findHistory(conversation) {
 		//find the id
 		const channelId = await conversation.channels.find(channel => channel.name === channelName).id;
-		//console.log(channelId)
+
 		const channelFormData = formData;
 		channelFormData.append('channel', channelId);
 		channelFormData.append('limit', 50);
@@ -29,6 +40,11 @@
 		return await hist.json();
 	}
 
+	/**
+	 * gets the text from a given history json. replaces nameIds for names. sets username of the author
+	 * @param history {json}
+	 * @returns {*[]}
+	 */
 	async function getMessages(history) {
 		async function replaceAsync(str, regex, asyncFn) {
 			const promises = [];
@@ -66,7 +82,7 @@
 	}
 
 	onMount(async () => {
-		const conversation = await findConversation();
+		const conversation = await getConversation();
 		console.log(conversation)
 		const history = await findHistory(conversation);
 		console.log(history)
