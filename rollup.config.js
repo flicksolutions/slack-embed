@@ -63,7 +63,8 @@ export default {
 			process: JSON.stringify({
 				env: {
 					isProd: production,
-					token: process.env.TOKEN,
+					TOKEN: process.env.TOKEN,
+					TEST: "test",
 					...config().parsed
 				}
 			}),

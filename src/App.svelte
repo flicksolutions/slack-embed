@@ -6,6 +6,9 @@
 	/** @type {FormData} */
 	let formData = new FormData();
 	console.log("environment:" + process.env.TOKEN)
+	console.log(process.env.token)
+	console.log(process.env.TEST)
+	console.log(process.env.VERCEL)
 	formData.append('token', process.env.TOKEN); //we need to check wheter this might be a security issue. if yes, how can we provide the token otherwise
 
 	export let channelName = "test-channel"; //prop for the channelName defaults to test-channel
