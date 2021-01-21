@@ -109,9 +109,12 @@
 </main>
 
 <style>
+	body {
+		padding: 0;
+	}
 	main {
 		text-align: center;
-		padding: 1em;
+		padding: 0;
 		margin: 0 auto;
 		max-width: 700px;
 	}
@@ -130,5 +133,7 @@
 	}
 	li{
 		margin: .8em 0;
+		overflow-wrap: break-word;
+		font-size: 12px;
 	}
 </style>
