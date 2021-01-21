@@ -98,7 +98,7 @@
 </script>
 
 <main>
-	<h1>Slack: {channelName}</h1>
+	<!--<h1>Slack: {channelName}</h1>-->
 	<ul class="messagelist">
 		{#each messages as message}
 			<li><b>{message.username}:</b> {message.text}</li>
@@ -116,12 +116,12 @@
 		max-width: 700px;
 	}
 
-	h1 {
+	/*h1 {
 		color: #ff3e00;
 		text-transform: uppercase;
 		font-size: 2em;
 		font-weight: 100;
-	}
+	}*/
 
 	ul{
 		list-style-type: none;
