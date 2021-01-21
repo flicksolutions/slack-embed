@@ -64,7 +64,7 @@ export default {
 				env: {
 					isProd: production,
 					TOKEN: process.env.TOKEN,
-					TEST: "test",
+					CHANNEL: process.env.CHANNEL,
 					...config().parsed
 				}
 			}),
