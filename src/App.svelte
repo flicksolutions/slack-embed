@@ -88,8 +88,6 @@
 	}
 
 	onMount(async () => {
-		console.log("env:")
-		console.log(process.env.CHANNEL)
 		const conversation = await getConversation();
 		console.log(conversation)
 		const history = await findHistory(conversation);
@@ -101,7 +99,6 @@
 
 <main>
 	<h1>Slack: {channelName}</h1>
-	{process.env.CHANNEL}
 	<ul class="messagelist">
 		{#each messages as message}
 			<li><b>{message.username}:</b> {message.text}</li>
