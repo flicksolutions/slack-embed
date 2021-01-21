@@ -5,13 +5,9 @@
 	let messages = [];
 	/** @type {FormData} */
 	let formData = new FormData();
-	console.log("environment:" + process.env.TOKEN)
-	console.log(process.env.token)
-	console.log(process.env.TEST)
-	console.log(process.env.VERCEL)
-	formData.append('token', process.env.TOKEN); //we need to check wheter this might be a security issue. if yes, how can we provide the token otherwise
+	formData.append('token', process.env.TOKEN);
 
-	export let channelName = "test-channel"; //prop for the channelName defaults to test-channel
+	export let channelName = process.env.CHANNEL ?? "just-for-testing"; //prop for the channelName defaults to test-channel
 
 	/**
 	 * List all Channels in a JSON-Object
@@ -32,16 +28,22 @@
 	 */
 	async function findHistory(conversation) {
 		//find the id
-		const channelId = await conversation.channels.find(channel => channel.name === channelName).id;
+		const channel = conversation.channels.find(channel => channel.name === channelName);
+		console.log(channel)
+		if (channel) {
+			const channelId = channel.id;
 
-		const channelFormData = formData;
-		channelFormData.append('channel', channelId);
-		channelFormData.append('limit', 50);
-		const hist = await fetch(`https://slack.com/api/conversations.history`, {
-			method: 'POST',
-			body: channelFormData
-		});
-		return await hist.json();
+			const channelFormData = formData;
+			channelFormData.append('channel', channelId);
+			channelFormData.append('limit', 50);
+			const hist = await fetch(`https://slack.com/api/conversations.history`, {
+				method: 'POST',
+				body: channelFormData
+			});
+			return await hist.json();
+		} else {
+			throw "the channel is not available"
+		}
 	}
 
 	/**
